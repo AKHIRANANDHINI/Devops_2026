@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Student Table with Edit/Delete & Search</title>
+  <style>
+    body {
+      font-family: Arial;
+      margin: 20px;
+    }
+
+    input, button {
+      margin: 5px;
+      padding: 5px;
+    }
+
+    table {
+      margin-top: 20px;
+      width: 80%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      border: 1px solid black;
+      padding: 8px;
+      text-align: center;
+    }
+
+    th {
+      background-color: #ddd;
+    }
+
+    .error {
+      color: red;
+      font-size: 12px;
+    }
+
+    #search {
+      width: 50%;
+      padding: 5px;
+    }
+  </style>
+</head>
+
+<body>
+
+<h2>Student Registration Table</h2>
+
+Name: <input type="text" id="name"> <span class="error" id="nameErr"></span><br>
+Course: <input type="text" id="course"> <span class="error" id="courseErr"></span><br>
+Email: <input type="email" id="email"><br>
+<button onclick="addStudent()">Add Student</button>
+
+<br><br>
+Search by Name: <input type="text" id="search" onkeyup="searchStudent()" placeholder="Type name...">
+
+<table id="studentTable">
+  <tr>
+    <th>Name</th>
+    <th>Course</th>
+    <th>Email</th>
+    <th>Actions</th>
+  </tr>
+</table>
+
+<script>
+let editIndex = -1;
+
+function addStudent() {
+  const name = document.getElementById("name").value.trim();
+  const course = document.getElementById("course").value.trim();
+  const email = document.getElementById("email").value.trim();
+
+  // Validation
+  let valid = true;
+  if (name === "" || /[^a-zA-Z\s]/.test(name)) {
+    document.getElementById("nameErr").innerText = "Name letters only";
+    valid = false;
+  } else {
+    document.getElementById("nameErr").innerText = "";
+  }
+
+  if (course === "" || /[^a-zA-Z\s]/.test(course)) {
+    document.getElementById("courseErr").innerText = "Course letters only";
+    valid = false;
+  } else {
+    document.getElementById("courseErr").innerText = "";
+  }
+
+  if (!valid) return;
+
+  let table = document.getElementById("studentTable");
+
+  if (editIndex === -1) {
+    // Add new row
+    let row = table.insertRow();
+    row.insertCell(0).innerText = name;
+    row.insertCell(1).innerText = course;
+    row.insertCell(2).innerText = email;
+    let actions = row.insertCell(3);
+    actions.innerHTML = `<button onclick="editStudent(this)">Edit</button> <button onclick="deleteStudent(this)">Delete</button>`;
+  } else {
+    // Edit existing row
+    let row = table.rows[editIndex];
+    row.cells[0].innerText = name;
+    row.cells[1].innerText = course;
+    row.cells[2].innerText = email;
+    editIndex = -1;
+  }
+
+  // Clear inputs
+  document.getElementById("name").value = "";
+  document.getElementById("course").value = "";
+  document.getElementById("email").value = "";
+}
+
+// Edit student
+function editStudent(btn) {
+  let row = btn.parentElement.parentElement;
+  document.getElementById("name").value = row.cells[0].innerText;
+  document.getElementById("course").value = row.cells[1].innerText;
+  document.getElementById("email").value = row.cells[2].innerText;
+  editIndex = row.rowIndex;
+}
+
+// Delete student
+function deleteStudent(btn) {
+  if (confirm("Are you sure you want to delete this student?")) {
+    let row = btn.parentElement.parentElement;
+    document.getElementById("studentTable").deleteRow(row.rowIndex);
+    editIndex = -1;
+  }
+}
+
+// Search student by name
+function searchStudent() {
+  let input = document.getElementById("search").value.toLowerCase();
+  let table = document.getElementById("studentTable");
+  for (let i = 1; i < table.rows.length; i++) {
+    let name = table.rows[i].cells[0].innerText.toLowerCase();
+    table.rows[i].style.display = name.includes(input) ? "" : "none";
+  }
+}
+</script>
+
+</body>
+</html>
